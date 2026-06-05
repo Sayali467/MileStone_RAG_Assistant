@@ -1,0 +1,18 @@
+name: Daily Ingestion Trigger
+
+on:
+  schedule:
+    # Runs at 10:00 AM IST (which is 04:30 AM UTC)
+    - cron: '30 4 * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  trigger-ingestion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Remote Ingestion API
+        run: |
+          curl -X POST https://milestoneragassistant-production.up.railway.app/api/admin/ingest \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_SECRET_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --fail

@@ -3,9 +3,10 @@ import os
 
 # Project Path settings
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_DIR = os.path.join(BASE_DIR, "db")
-CORPUS_DIR = os.path.join(BASE_DIR, "corpus")
-PARSED_DIR = os.path.join(BASE_DIR, "data", "parsed")
+DB_DIR = os.getenv("DB_DIR", os.path.join(BASE_DIR, "db"))
+CORPUS_DIR = os.getenv("CORPUS_DIR", os.path.join(BASE_DIR, "corpus"))
+DATA_DIR = os.getenv("DATA_DIR", os.path.join(BASE_DIR, "data"))
+PARSED_DIR = os.path.join(DATA_DIR, "parsed")
 
 # Embeddings model name (BGE Small — local CPU, no API cost)
 MODEL_NAME = "BAAI/bge-small-en-v1.5"

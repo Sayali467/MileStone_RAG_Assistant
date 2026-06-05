@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, BackgroundTasks
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -50,6 +50,15 @@ def chat(request: QueryRequest):
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "Groww Genie API"}
+
+@app.post("/api/admin/ingest")
+def trigger_ingestion(background_tasks: BackgroundTasks, authorization: str = Header(None)):
+    secret = os.getenv("ADMIN_SECRET_TOKEN")
+    if not secret or authorization != f"Bearer {secret}":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    background_tasks.add_task(run_ingestion_job)
+    return {"status": "accepted", "message": "Ingestion job started in the background."}
 
 @app.on_event("startup")
 def start_scheduler():
