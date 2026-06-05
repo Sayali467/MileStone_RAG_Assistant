@@ -10,9 +10,17 @@ jobs:
   trigger-ingestion:
     runs-on: ubuntu-latest
     steps:
+      - name: Check for ADMIN_SECRET_TOKEN
+        run: |
+          if [ -z "${{ secrets.ADMIN_SECRET_TOKEN }}" ]; then
+            echo "::error::ADMIN_SECRET_TOKEN is not set in repository secrets."
+            echo "Please go to Settings -> Secrets and variables -> Actions and add ADMIN_SECRET_TOKEN."
+            exit 1
+          fi
+
       - name: Trigger Remote Ingestion API
         run: |
           curl -X POST https://milestoneragassistant-production.up.railway.app/api/admin/ingest \
             -H "Authorization: Bearer ${{ secrets.ADMIN_SECRET_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --fail
+            --fail --show-error -s -v
