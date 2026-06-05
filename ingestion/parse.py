@@ -226,24 +226,98 @@ def extract_from_text(text, parsed_data, key):
 
 def extract_from_html(soup, parsed_data, key):
     """
-    Extracts metadata from the raw fetched HTML (like title), but populates
-    scheme-specific parameters from the verified corpus text files since
-    Groww renders key parameters (managers, exit loads, direct expense ratio)
-    dynamically on the client side, making them absent from standard SSR HTML.
+    Extracts live data from the __NEXT_DATA__ embedded JSON in the Groww HTML page.
+    Falls back to verified local corpus files for fields not found in the JSON.
     """
-    # Remove script and style elements
+    import re as _re
+
+    # Step 1: Extract Title as Scheme Name from <title>
+    # We need the raw soup before script tags are removed, so parse __NEXT_DATA__ first
+    # from the original soup (before decompose).
+    next_data = None
+    next_script = soup.find("script", id="__NEXT_DATA__")
+    if next_script and next_script.string:
+        try:
+            next_data = json.loads(next_script.string)
+        except Exception:
+            next_data = None
+
+    # Step 2: Remove script/style/nav/footer elements for text parsing
     for element in soup(["script", "style", "nav", "footer", "header"]):
         element.decompose()
-        
+
     # Extract Title as Scheme Name
     title_tag = soup.find("title")
     if title_tag:
         parsed_data["scheme_name"] = title_tag.get_text().split(" - ")[0].strip()
-        
-    # Extract all parameters from the verified local files to guarantee 100% correctness
+
+    # Step 3: Pull live fields from __NEXT_DATA__ JSON if available
+    if next_data:
+        try:
+            # Groww stores all fund data under props.pageProps.mfServerSideData
+            mf = (
+                next_data.get("props", {})
+                        .get("pageProps", {})
+                        .get("mfServerSideData", {})
+            )
+
+            # NAV
+            nav_val = mf.get("nav")
+            nav_date = mf.get("nav_date", "")
+            if nav_val:
+                date_str = f" (as of {nav_date})" if nav_date else ""
+                parsed_data["sections"]["nav"] = f"Rs. {nav_val}{date_str}."
+
+            # AUM
+            aum_val = mf.get("aum")
+            if aum_val:
+                try:
+                    aum_cr = float(aum_val)
+                    parsed_data["sections"]["aum"] = f"Rs. {aum_cr:,.2f} Crores."
+                except Exception:
+                    parsed_data["sections"]["aum"] = f"Rs. {aum_val} Crores."
+
+            # Returns — from return_stats[0] (lumpsum annualised)
+            return_stats = mf.get("return_stats", [])
+            rs = return_stats[0] if return_stats else {}
+            parts = []
+            if rs.get("return1y") is not None:
+                parts.append(f"1-Year: {round(float(rs['return1y']), 2)}%")
+            if rs.get("return3y") is not None:
+                parts.append(f"3-Year Annualized: {round(float(rs['return3y']), 2)}%")
+            if rs.get("return5y") is not None:
+                parts.append(f"5-Year Annualized: {round(float(rs['return5y']), 2)}%")
+            if rs.get("return10y") is not None:
+                parts.append(f"10-Year Annualized: {round(float(rs['return10y']), 2)}%")
+            if parts:
+                parsed_data["sections"]["returns"] = ", ".join(parts) + "."
+
+            # Expense Ratio
+            er = mf.get("expense_ratio")
+            if er:
+                parsed_data["sections"]["expense_ratio"] = f"{er}% for the Direct Plan."
+
+            # Rating — prefer CRISIL, then Groww
+            crisil = mf.get("crisil_rating")
+            groww_r = mf.get("groww_rating")
+            if crisil:
+                parsed_data["sections"]["rating"] = f"{crisil}-Star (CRISIL)."
+            elif groww_r:
+                parsed_data["sections"]["rating"] = f"{groww_r}-Star (Groww)."
+
+            # Benchmark
+            bench = mf.get("benchmark_name") or mf.get("benchmark")
+            if bench:
+                parsed_data["sections"]["benchmark"] = f"{bench}."
+
+        except Exception as e:
+            print(f"  [WARN] Failed to extract from __NEXT_DATA__: {e}")
+
+    # Step 4: For any section still empty, fall back to verified local corpus
     for s in SECTIONS:
         if s not in ["tax", "investment_objective", "fund_house"]:
-            extract_fallback_value(key, s, parsed_data)
+            if not parsed_data["sections"].get(s):
+                extract_fallback_value(key, s, parsed_data)
 
 def extract_fallback_value(key, section_name, parsed_data):
     """

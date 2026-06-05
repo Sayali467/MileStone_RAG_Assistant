@@ -36,9 +36,19 @@
     </div>
   </header>
 
-  <div class="flex flex-1 overflow-hidden relative">
+  <div class="flex flex-1 overflow-hidden">
     <!-- SideNavBar (Chat History) -->
-    <aside (mouseenter)="expandSidebar()" (mouseleave)="collapseSidebar()" [ngClass]="{'w-20': !isSidebarExpanded, 'w-[360px]': isSidebarExpanded, 'shadow-2xl z-50': isSidebarHovered && isSidebarCollapsed}" class="absolute left-0 top-0 bottom-0 flex flex-col p-4 bg-surface-container-low border-r border-outline-variant z-40 hidden md:flex transition-all duration-300 overflow-x-hidden">
+    <!-- When pinned open (!isSidebarCollapsed): participates in flex flow, pushes main content -->
+    <!-- When collapsed (isSidebarCollapsed): icon-only w-20 in flex flow; hover expands as overlay -->
+    <aside
+      (mouseenter)="expandSidebar()"
+      (mouseleave)="collapseSidebar()"
+      [ngClass]="{
+        'w-20': isSidebarCollapsed,
+        'w-[300px]': !isSidebarCollapsed,
+        'absolute top-0 bottom-0 left-0 w-[300px] z-50 shadow-2xl': isSidebarCollapsed && isSidebarHovered
+      }"
+      class="hidden md:flex flex-col flex-shrink-0 p-4 bg-surface-container-low border-r border-outline-variant transition-all duration-300 overflow-hidden">
       
       <!-- Groww Genie Header -->
       <div class="flex items-center gap-3 px-2 py-4 mb-2 relative overflow-hidden rounded-xl shrink-0" [ngClass]="{'justify-center px-0': !isSidebarExpanded}">
@@ -117,13 +127,13 @@
         </div>
         <div (click)="toggleSidebar()" class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer mt-4 border-t border-outline-variant pt-4" [ngClass]="{'justify-center px-0': !isSidebarExpanded, 'px-4': isSidebarExpanded}">
           <span class="material-symbols-outlined text-[20px] shrink-0 transition-transform duration-300" [class.rotate-180]="!isSidebarExpanded">menu_open</span>
-          <span class="text-label-md font-label-md whitespace-nowrap" *ngIf="isSidebarExpanded">Collapse</span>
+
         </div>
       </div>
     </aside>
 
     <!-- Main Chat Canvas -->
-    <main [ngClass]="{'md:ml-20': isSidebarCollapsed, 'md:ml-[360px]': !isSidebarCollapsed}" class="flex-1 flex flex-col bg-background transition-all duration-300 relative w-full h-full">
+    <main class="flex-1 flex flex-col bg-background relative min-w-0 overflow-hidden">
       
       <!-- CONDITIONAL HERO: Only when sidebar collapsed & no conversation -->
       <div *ngIf="isSidebarCollapsed && !hasStartedConversation" class="px-6 md:px-12 pt-8 pb-4 shrink-0 bg-background z-20 flex flex-col items-center justify-center border-b border-outline-variant/30">

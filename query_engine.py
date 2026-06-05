@@ -41,11 +41,90 @@ PII_PATTERNS = [
 ]
 
 ADVISORY_KEYWORDS = [
-    "should i buy", "should i invest", "which is better", "recommend",
-    "best fund", "suggest", "buy or sell", "portfolio advice",
-    "is it good to buy", "should i hold", "investment tips", "give advice",
-    "should i switch", "switch from", "switch to"
+    # Direct advice requests
+    "should i buy", "should i invest", "should i hold", "should i switch",
+    "should i move", "should i redeem", "should i exit", "should i put",
+    "should i start", "should i stop", "should i continue",
+    # Switch / transfer language
+    "switch from", "switch to", "move from", "move to",
+    "shift from", "shift to", "transfer from", "migrate from",
+    # Recommendation / opinion language
+    "which is better", "which fund is best", "which is the best",
+    "recommend", "best fund", "suggest", "give advice",
+    "portfolio advice", "investment tips", "what should i",
+    "is it good to", "is it right to", "is it worth", "worth investing",
+    "better to invest", "better option", "better choice",
+    "buy or sell", "good time to invest", "right time to invest",
+    "right fund for me", "good for me", "suitable for me",
+    # Comparison intent that implies advice
+    "which one should", "which would you", "do you think",
+    "in your opinion", "what do you think", "your view",
 ]
+
+# ---------------------------------------------------------------------------
+# Off-topic / out-of-scope keyword guard (non-MF topics)
+# ---------------------------------------------------------------------------
+
+OFF_TOPIC_KEYWORDS = [
+    # Sports — use specific phrases to avoid false positives on words like 'over', 'score', 'match'
+    "ipl score", "ipl match", "cricket score", "cricket match", "cricket team",
+    "football score", "football match", "soccer score", "tennis match",
+    "ipl 2024", "ipl 2025", "ipl 2026",
+    "wicket", "innings", "stadium", "world cup cricket", "athlete",
+    "who won the match", "sports news",
+    # Entertainment / News
+    "movie review", "bollywood", "netflix show", "ott platform",
+    "actor", "actress", "celebrity news",
+    "song lyrics", "music album",
+    "election result", "election news", "political party", "prime minister news",
+    # Technology (non-finance)
+    "chatgpt", "openai", "bard ai", "android phone", "iphone review",
+    "laptop review", "video game", "programming language",
+    # Food / Travel
+    "recipe", "restaurant near", "flight ticket", "hotel booking",
+    "visa application", "travel guide",
+    # Health
+    "medicine dosage", "doctor near me", "hospital near",
+    "disease symptoms", "vaccine side effects",
+    # Weather
+    "weather forecast", "weather today", "rain today", "temperature today",
+    # General knowledge (use longer phrases to avoid substring collisions)
+    "who is the president", "what is the capital of", "history of india",
+    "explain gravity", "population of india", "gdp of india",
+]
+
+# Topics that sound like finance but are NOT mutual fund topics scoped here.
+# IMPORTANT: Keep this list precise — avoid words that are valid MF terminology
+# (e.g. 'nifty 50' is a benchmark, 'currency risk' is an MF concept, 'silver' is a scheme)
+NON_MF_FINANCE_KEYWORDS = [
+    "stock price of", "share price of", "bse stock", "sensex today",
+    "futures trading", "options trading", "forex trading",
+    "crypto price", "bitcoin price", "ethereum price",
+    "ipo price", "ipo allotment",
+    "fd rate", "fixed deposit rate", "ppf interest", "nps tier",
+    "insurance premium", "term insurance",
+    "home loan rate", "emi calculator", "gold price today",
+]
+
+
+def _extract_topic(query: str) -> str:
+    """
+    Attempts to extract a short, human-readable topic label from the query.
+    Falls back to the first 6 words of the query.
+    """
+    q_lower = query.lower()
+    for kw in OFF_TOPIC_KEYWORDS + NON_MF_FINANCE_KEYWORDS:
+        if kw in q_lower:
+            return kw.replace("_", " ").title()
+    # Fallback: trim to first 6 words
+    words = query.split()
+    return " ".join(words[:6]) + ("..." if len(words) > 6 else "")
+
+
+def scan_off_topic(query: str) -> bool:
+    """Returns True if the query is clearly outside the mutual fund fact domain."""
+    q = query.lower()
+    return any(kw in q for kw in OFF_TOPIC_KEYWORDS + NON_MF_FINANCE_KEYWORDS)
 
 PERFORMANCE_KEYWORDS = [
     "return", "cagr", "past performance", "annualized", "yield",
@@ -282,6 +361,11 @@ def retrieve(query: str) -> dict:
 # Phase 5 — Query Engine: Guardrails + LLM Generation + Output Validator
 # ---------------------------------------------------------------------------
 
+# Minimum cosine-similarity score threshold. Chunks with avg score below
+# this are treated as "no relevant context found" and trigger out-of-scope reply.
+_RELEVANCE_THRESHOLD = 0.30
+
+
 def query_rag_engine(query: str) -> dict:
     """
     Full query pipeline matching the Query Routing Matrix:
@@ -303,7 +387,21 @@ def query_rag_engine(query: str) -> dict:
     # 5.1.5 Greeting Handler
     if scan_greeting(query):
         return {
-            "answer": "Hello! I'm Genie. How can I assist you with Nippon India Mutual Funds today?",
+            "answer": config.GREETING_RESPONSE,
+            "citation_url": "",
+            "citation_title": "",
+            "last_updated": "",
+            "is_refusal": True,
+        }
+
+    # 5.1.6 Off-topic / out-of-scope guard (pre-retrieval keyword check)
+    if scan_off_topic(query):
+        topic = _extract_topic(query)
+        return {
+            "answer": (
+                f"Groww Genie is designed to answer mutual fund fact questions only. "
+                f"I don't have information on {topic}."
+            ),
             "citation_url": "",
             "citation_title": "",
             "last_updated": "",
@@ -351,13 +449,39 @@ def query_rag_engine(query: str) -> dict:
     chunks       = retrieval["chunks"]
 
     if not context_str or not chunks:
+        topic = _extract_topic(query)
         return {
-            "answer":      config.OUT_OF_SCOPE_REFUSAL_MESSAGE,
-            "citation_url": config.SCHEME_URLS.get("nippon_india_statements", ""),
-            "citation_title": "Nippon India",
+            "answer": (
+                f"Groww Genie is designed to answer mutual fund fact questions only. "
+                f"I don't have information on {topic}."
+            ),
+            "citation_url": "",
+            "citation_title": "",
             "last_updated": "",
             "is_refusal":   True,
         }
+
+    # 5.4.1 Relevance score check — if retrieved chunks are not relevant
+    # (i.e., the query is outside the MF corpus), refuse gracefully.
+    try:
+        if db is not None:
+            scored = db.similarity_search_with_relevance_scores(query, k=1)
+            if scored:
+                top_score = scored[0][1]
+                if top_score < _RELEVANCE_THRESHOLD:
+                    topic = _extract_topic(query)
+                    return {
+                        "answer": (
+                            f"Groww Genie is designed to answer mutual fund fact questions only. "
+                            f"I don't have information on {topic}."
+                        ),
+                        "citation_url": "",
+                        "citation_title": "",
+                        "last_updated": "",
+                        "is_refusal": True,
+                    }
+    except Exception:
+        pass  # If scoring fails, allow the LLM to handle it via the system prompt
 
     # 5.5 LLM Constrained Generation (temperature=0.0)
     api_key = os.getenv("GROQ_API_KEY")
