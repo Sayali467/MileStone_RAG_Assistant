@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Groww Genie | AI Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#3d4247",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-fixed": "#161c24",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary": "#313030",
+                        "secondary-container": "#4a4949",
+                        "surface-variant": "#3c4045",
+                        "surface-container-low": "#1f2327",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#14181b",
+                        "on-primary-container": "#00533c",
+                        "on-background": "#f0f1f5",
+                        "outline": "#85948c",
+                        "inverse-primary": "#006c4f",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#434952",
+                        "primary-container": "#00d09c",
+                        "tertiary-container": "#b2b8c2",
+                        "surface-container": "#24282c",
+                        "inverse-surface": "#e1e2e7",
+                        "on-surface-variant": "#c5d2ca",
+                        "secondary": "#c8c6c5",
+                        "primary-fixed-dim": "#2fe0aa",
+                        "surface-tint": "#2fe0aa",
+                        "primary": "#44edb7",
+                        "surface-dim": "#171b1f",
+                        "tertiary-fixed-dim": "#c1c7d1",
+                        "on-tertiary-fixed-variant": "#414750",
+                        "on-secondary-container": "#bab8b7",
+                        "surface-container-high": "#2e3237",
+                        "surface-container-highest": "#3a3e43",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#171b1f",
+                        "outline-variant": "#485650",
+                        "tertiary-fixed": "#dde3ee",
+                        "tertiary": "#ced3de",
+                        "inverse-on-surface": "#2e3134",
+                        "background": "#171b1f",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-primary-fixed": "#002116",
+                        "on-primary-fixed-variant": "#00513b",
+                        "on-tertiary": "#2b3139",
+                        "on-surface": "#f0f1f5",
+                        "on-primary": "#003828",
+                        "primary-fixed": "#59fdc5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base-unit": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max-width": "1200px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["26px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #171b1f;
+            color: #f0f1f5;
+            overflow: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #485650;
+            border-radius: 10px;
+        }
+        .message-shadow {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Animations */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-effect {
+            background: linear-gradient(90deg, transparent, rgba(68, 237, 183, 0.15), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-message {
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes hover-lift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
+        }
+        .btn-hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(68, 237, 183, 0.3);
+        }
+        .btn-hover-lift {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+
+        @keyframes pulse-custom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .hover-pulse:hover {
+            animation: pulse-custom 1s infinite ease-in-out;
+        }
+
+        @keyframes slowRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-slow-rotate {
+            animation: slowRotate 8s linear infinite;
+        }
+
+        /* Input specific animations */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(10deg); }
+        }
+        .animate-twinkle {
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes send-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(68, 237, 183, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px 5px rgba(68, 237, 183, 0.2); }
+        }
+        .animate-send-ready {
+            animation: send-pulse 1.5s infinite ease-in-out;
+        }
+
+        .input-focus-ring {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-focus-ring:focus-within {
+            border-color: #44edb7 !important;
+            box-shadow: 0 0 12px 2px rgba(68, 237, 183, 0.15), inset 0 0 8px rgba(68, 237, 183, 0.1) !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .shimmer-effect, .animate-message, .hover-pulse:hover, .animate-slow-rotate, .btn-hover-lift:hover, .animate-twinkle, .animate-send-ready {
+                animation: none !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .animate-message {
+                opacity: 1 !important;
+            }
+        }
+
+        /* Collapsible Sidebar Styles */
+        #sidebar {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-collapsed {
+            width: 80px !important;
+        }
+        .sidebar-collapsed .sidebar-text, 
+        .sidebar-collapsed .sidebar-header-text,
+        .sidebar-collapsed .sidebar-section-title {
+            display: none !important;
+        }
+        .sidebar-collapsed .sidebar-item {
+            justify-content: center !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        .sidebar-collapsed .sidebar-btn-text {
+            display: none !important;
+        }
+        .sidebar-collapsed .sidebar-btn {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 !important;
+        }
+        .sidebar-collapsed #toggle-btn span {
+            transform: rotate(180deg);
+        }
+        #toggle-btn span {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max-width mx-auto bg-background border-b border-outline-variant z-50">
+<div class="flex items-center gap-12">
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Explore</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">SIPs</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Watchlist</a>
+<div class="flex items-center gap-2 text-primary font-bold font-label-md text-label-md relative px-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                AI Assistant
+                <span class="bg-primary-container text-on-primary-container text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">New</span>
+<div class="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-primary"></div>
+</div>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+<input class="bg-surface-container-high border-none rounded-lg pl-10 pr-16 py-2 text-body-sm font-body-sm w-80 focus:ring-1 focus:ring-primary placeholder-on-surface-variant/50" placeholder="Search Groww..." type="text"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-label-sm font-label-sm text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded border border-outline-variant">Ctrl+K</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">notifications</span>
+<span class="absolute -top-1 -right-1 bg-primary text-on-primary-container text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">5</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">account_balance_wallet</span>
+<div class="h-8 w-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="User avatar" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8OIdS1_H29IIiTGjhRnDsPAZc2AIZM2D1SP_AUYLYz3xD-nZSc0F4qu2zsLKIc2wZyWrHPs1q9prs-PDzrREiWhFkdWsClyDeS4J8u5W_uZKmAmHiN6NUDkvn5a7tGyrmzfLy_gzo-UoIWyHzWaqYWu0nvadCdo2Yg6d4w5BgoUBaEv1KOxbif3zoUVBU_er8ai1vo7uBSh8XBFLQWOBPCSaA91vQu6VVUhtMWK3ggEcGf7z747h3VK5SrhPWxC_3_vEqwmTdjKS7"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar (Chat History) -->
+<aside class="fixed left-0 top-16 bottom-0 w-80 flex flex-col p-4 bg-surface-container-low border-r border-outline-variant z-40 hidden md:flex" id="sidebar">
+<div class="flex items-center gap-3 px-2 py-4 mb-2 relative overflow-hidden rounded-xl shrink-0">
+<div class="absolute inset-0 shimmer-effect pointer-events-none opacity-30"></div>
+<div class="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center relative z-10 shrink-0">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="relative z-10 sidebar-header-text">
+<h2 class="text-primary font-bold font-headline-sm text-headline-sm">Groww Genie</h2>
+<p class="text-on-surface-variant text-label-sm font-label-sm">Your mutual fund assistant</p>
+</div>
+</div>
+<button class="sidebar-btn w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md flex items-center justify-center gap-2 mb-6 hover-pulse active:scale-95 transition-all shrink-0">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="sidebar-btn-text">New Chat</span>
+</button>
+<div class="flex-1 overflow-y-auto custom-scrollbar space-y-6">
+<div>
+<span class="sidebar-section-title text-on-surface-variant text-[11px] font-bold uppercase tracking-wider px-4 mb-2 block">Recent</span>
+<div class="space-y-1">
+<div class="sidebar-item text-primary font-semibold bg-primary/10 rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer group">
+<span class="material-symbols-outlined text-[20px] shrink-0">chat_bubble</span>
+<span class="truncate flex-1 sidebar-text">Exit load for Mirae Asset...</span>
+</div>
+<div class="sidebar-item text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright transition-all rounded-lg cursor-pointer group">
+<span class="material-symbols-outlined text-[20px] shrink-0">chat_bubble</span>
+<span class="truncate flex-1 sidebar-text">ELSS lock-in period rules</span>
+</div>
+</div>
+</div>
+<div>
+<span class="sidebar-section-title text-on-surface-variant text-[11px] font-bold uppercase tracking-wider px-4 mb-2 block">Last 7 Days</span>
+<div class="space-y-1">
+<div class="sidebar-item text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined text-[20px] shrink-0">chat_bubble</span>
+<span class="truncate flex-1 sidebar-text">HDFC Small Cap Returns</span>
+</div>
+<div class="sidebar-item text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined text-[20px] shrink-0">chat_bubble</span>
+<span class="truncate flex-1 sidebar-text">Nifty 50 vs Next 50</span>
+</div>
+<div class="sidebar-item text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined text-[20px] shrink-0">chat_bubble</span>
+<span class="truncate flex-1 sidebar-text">Tax implications on SIP</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant space-y-1 shrink-0">
+<div class="sidebar-item text-on-surface-variant px-4 py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px] shrink-0">settings</span>
+<span class="text-label-md font-label-md sidebar-text">Settings</span>
+</div>
+<div class="sidebar-item text-on-surface-variant px-4 py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px] shrink-0">help</span>
+<span class="text-label-md font-label-md sidebar-text">Help</span>
+</div>
+<div class="sidebar-item text-on-surface-variant px-4 py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer mt-4 border-t border-outline-variant pt-4" id="toggle-btn">
+<span class="material-symbols-outlined text-[20px] shrink-0">menu_open</span>
+<span class="text-label-md font-label-md sidebar-text">Collapse</span>
+</div>
+</div>
+</aside>
+<!-- Main Chat Canvas -->
+<main class="flex-1 flex flex-col md:ml-80 bg-background transition-all duration-300 relative" id="main-content">
+<!-- Chat Display Area -->
+<div class="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar flex flex-col gap-8">
+<!-- Chat Header / Intro -->
+<div class="flex flex-col items-center mb-4">
+<div class="h-16 w-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4 relative overflow-hidden">
+<div class="absolute inset-0 shimmer-effect opacity-40"></div>
+<span class="material-symbols-outlined text-primary text-4xl relative z-10" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="text-center max-w-md">
+<div class="flex items-center justify-center gap-2 mb-1">
+<h1 class="font-headline-md text-headline-md text-on-surface">Groww Genie</h1>
+<span class="bg-surface-variant border border-primary/30 text-primary text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            Facts only • No advice
+                        </span>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md">Your mutual fund fact assistant. Ask me anything about ratios, loads, or performance.</p>
+</div>
+</div>
+<!-- Conversation Started Separator -->
+<div class="flex items-center justify-center gap-4 text-on-surface-variant/40 py-4">
+<div class="h-[1px] flex-1 bg-outline-variant/30"></div>
+<span class="text-[10px] font-bold uppercase tracking-[0.2em]">Conversation Started</span>
+<div class="h-[1px] flex-1 bg-outline-variant/30"></div>
+</div>
+<!-- Message: User -->
+<div class="flex justify-end animate-message">
+<div class="max-w-[80%] bg-primary-container text-on-primary-container px-5 py-3 rounded-2xl rounded-tr-none message-shadow font-body-md text-body-md">
+                    What is the exit load for Mirae Asset Large Cap Fund?
+                </div>
+</div>
+<!-- Message: Assistant -->
+<div class="flex gap-4 animate-message" style="animation-delay: 0.2s;">
+<div class="h-8 w-8 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="max-w-[85%] flex flex-col gap-3">
+<div class="bg-surface-container-high text-on-surface px-6 py-4 rounded-2xl rounded-tl-none border border-outline-variant/50 message-shadow">
+<p class="font-body-md text-body-md leading-relaxed mb-4">
+                            There is no exit load on Mirae Asset Large Cap Fund – Direct Growth Plan if redeemed after 1 year. If redeemed within 365 days, a 1% exit load applies.
+                        </p>
+<div class="flex flex-wrap items-center gap-4 pt-3 border-t border-outline-variant/30">
+<a class="flex items-center gap-1.5 text-primary text-body-sm font-semibold hover:underline" href="#">
+<span class="material-symbols-outlined text-[16px]">link</span>
+                                Mirae Asset Large Cap Fund — Factsheet
+                            </a>
+<span class="flex items-center gap-1.5 text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Last updated: May 2024
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_down</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="px-8 pb-8 pt-4 bg-background relative z-10">
+<div class="max-w-4xl mx-auto relative group">
+<div class="absolute -top-12 left-0 right-0 flex gap-2 overflow-x-auto custom-scrollbar no-scrollbar py-2">
+<button class="shrink-0 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-lg text-body-sm font-body-sm text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+                        Expense ratio of Mirae Asset?
+                    </button>
+<button class="shrink-0 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-lg text-body-sm font-body-sm text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+                        ELSS lock-in period?
+                    </button>
+<button class="shrink-0 bg-surface-container border border-outline-variant px-3 py-1.5 rounded-lg text-body-sm font-body-sm text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+                        Minimum SIP for Parag Parikh?
+                    </button>
+</div>
+<!-- Invest Now Button - Prominent Floating Position -->
+<div class="absolute -top-16 right-0">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-md text-label-md flex items-center gap-2 btn-hover-lift shadow-lg message-shadow">
+<span>Invest Now</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+<div class="relative flex items-end gap-2 bg-surface-container-highest rounded-2xl p-2 border border-outline-variant input-focus-ring transition-all group/container">
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md py-3 px-4 resize-none max-h-32 placeholder-on-surface-variant/60" id="chat-input" placeholder="Ask anything about mutual funds..." rows="1"></textarea>
+<div class="flex items-center gap-2 pr-2 pb-1.5">
+<span class="material-symbols-outlined text-primary/40 text-[20px] select-none transition-colors duration-300 group-focus-within/container:text-primary/70 group-hover/container:animate-twinkle" id="sparkle-icon">auto_awesome</span>
+<button class="h-10 w-10 bg-primary text-on-primary rounded-xl flex items-center justify-center shrink-0 hover:bg-primary-fixed hover:scale-110 active:scale-95 transition-all duration-300 shadow-sm" id="send-btn">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<p class="text-center text-label-sm font-label-sm text-on-surface-variant mt-3">
+                    Genie is an experimental AI and can make mistakes. Verify facts with the factsheet.
+                </p>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile FAB -->
+<button class="md:hidden fixed bottom-6 right-6 h-14 w-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform z-[100] hover-pulse">
+<span class="material-symbols-outlined animate-slow-rotate" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+<script>
+    // Existing Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const toggleText = toggleBtn.querySelector('.sidebar-text');
+    const toggleIcon = toggleBtn.querySelector('span');
+
+    let isCollapsed = false;
+
+    toggleBtn.addEventListener('click', () => {
+        isCollapsed = !isCollapsed;
+        
+        if (isCollapsed) {
+            sidebar.classList.add('sidebar-collapsed');
+            mainContent.classList.remove('md:ml-80');
+            mainContent.classList.add('md:ml-20');
+            toggleText.textContent = 'Expand';
+            toggleIcon.textContent = 'menu';
+        } else {
+            sidebar.classList.remove('sidebar-collapsed');
+            mainContent.classList.remove('md:ml-20');
+            mainContent.classList.add('md:ml-80');
+            toggleText.textContent = 'Collapse';
+            toggleIcon.textContent = 'menu_open';
+        }
+    });
+
+    // Input interaction enhancements
+    const chatInput = document.getElementById('chat-input');
+    const sparkleIcon = document.getElementById('sparkle-icon');
+    const sendBtn = document.getElementById('send-btn');
+
+    chatInput.addEventListener('focus', () => {
+        sparkleIcon.classList.add('animate-twinkle');
+    });
+
+    chatInput.addEventListener('blur', () => {
+        sparkleIcon.classList.remove('animate-twinkle');
+    });
+
+    chatInput.addEventListener('input', () => {
+        if (chatInput.value.trim().length > 0) {
+            sendBtn.classList.add('animate-send-ready');
+        } else {
+            sendBtn.classList.remove('animate-send-ready');
+        }
+
+        // Auto-resize textarea
+        chatInput.style.height = 'auto';
+        chatInput.style.height = (chatInput.scrollHeight) + 'px';
+    });
+</script>
+</body></html>

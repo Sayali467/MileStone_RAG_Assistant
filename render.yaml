@@ -1,0 +1,30 @@
+services:
+  # The FastAPI Backend Web Service
+  - type: web
+    name: groww-genie-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: chromadb-disk
+      mountPath: /app/db
+      sizeGB: 1
+    envVars:
+      - key: CORS_ORIGINS
+        value: "https://your-vercel-frontend.vercel.app" # REPLACE THIS with actual Vercel URL
+      - key: GROQ_API_KEY
+        sync: false # Set this securely in the Render dashboard
+
+  # The Background Cron Job for Daily Ingestion
+  - type: cron
+    name: groww-genie-ingestion-job
+    env: docker
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: chromadb-disk
+      mountPath: /app/db
+      sizeGB: 1
+    schedule: "0 10 * * *"
+    command: python ingest.py
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false # Set this securely in the Render dashboard

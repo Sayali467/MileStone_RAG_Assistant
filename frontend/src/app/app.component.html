@@ -1,0 +1,296 @@
+<div class="flex flex-col h-screen bg-background text-on-surface">
+  <!-- TopNavBar -->
+  <header class="flex justify-between items-center w-full px-8 py-4 max-w-[1200px] mx-auto bg-background border-b border-outline-variant z-50">
+    <div class="flex items-center gap-12">
+      <nav class="hidden md:flex items-center gap-8">
+        <a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Explore</a>
+        <a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+        <a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">SIPs</a>
+        <a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Watchlist</a>
+        <div class="flex items-center gap-2 text-primary font-bold font-label-md text-label-md relative px-1">
+          <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          AI Assistant
+          <span class="bg-primary-container text-on-primary-container text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">New</span>
+          <div class="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-primary"></div>
+        </div>
+      </nav>
+    </div>
+    <div class="flex items-center gap-8">
+      <div class="relative hidden lg:block group">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[18px] group-focus-within:text-primary transition-colors">search</span>
+        <input [(ngModel)]="searchText" class="bg-surface-container-high border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2 text-body-sm font-body-sm w-64 focus:ring-1 focus:ring-primary/50 focus:border-primary/50 placeholder-on-surface-variant/60 focus:outline-none transition-all" placeholder="Search Groww..." type="text"/>
+        <button *ngIf="searchText.length > 0" (click)="clearSearch()" class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-6 w-6 text-on-surface-variant hover:text-on-surface bg-transparent border-none outline-none cursor-pointer">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-5">
+        <div class="relative">
+          <span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">notifications</span>
+          <span class="absolute -top-1 -right-1 bg-primary text-on-primary-container text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">5</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">account_balance_wallet</span>
+        <div class="h-8 w-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+          <img alt="User avatar" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8OIdS1_H29IIiTGjhRnDsPAZc2AIZM2D1SP_AUYLYz3xD-nZSc0F4qu2zsLKIc2wZyWrHPs1q9prs-PDzrREiWhFkdWsClyDeS4J8u5W_uZKmAmHiN6NUDkvn5a7tGyrmzfLy_gzo-UoIWyHzWaqYWu0nvadCdo2Yg6d4w5BgoUBaEv1KOxbif3zoUVBU_er8ai1vo7uBSh8XBFLQWOBPCSaA91vQu6VVUhtMWK3ggEcGf7z747h3VK5SrhPWxC_3_vEqwmTdjKS7"/>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden relative">
+    <!-- SideNavBar (Chat History) -->
+    <aside (mouseenter)="expandSidebar()" (mouseleave)="collapseSidebar()" [ngClass]="{'w-20': !isSidebarExpanded, 'w-[360px]': isSidebarExpanded, 'shadow-2xl z-50': isSidebarHovered && isSidebarCollapsed}" class="absolute left-0 top-0 bottom-0 flex flex-col p-4 bg-surface-container-low border-r border-outline-variant z-40 hidden md:flex transition-all duration-300 overflow-x-hidden">
+      
+      <!-- Groww Genie Header -->
+      <div class="flex items-center gap-3 px-2 py-4 mb-2 relative overflow-hidden rounded-xl shrink-0" [ngClass]="{'justify-center px-0': !isSidebarExpanded}">
+        <div class="absolute inset-0 shimmer-effect pointer-events-none opacity-30"></div>
+        <div class="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center relative z-10 shrink-0">
+          <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+        </div>
+        <div class="relative z-10 min-w-[200px]" *ngIf="isSidebarExpanded">
+          <h2 class="text-primary font-bold font-headline-sm text-headline-sm m-0">Groww Genie</h2>
+          <p class="text-on-surface-variant text-label-sm font-label-sm m-0 leading-tight mt-0.5">Your mutual fund fact assistant</p>
+        </div>
+      </div>
+
+      <!-- New Chat Button -->
+      <button (click)="startNewChat()" class="bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md flex items-center justify-center gap-2 mb-6 hover-pulse active:scale-95 transition-all shrink-0" [ngClass]="{'w-12 h-12 mx-auto p-0': !isSidebarExpanded, 'w-full': isSidebarExpanded}">
+        <span class="material-symbols-outlined text-[20px]">add</span>
+        <span *ngIf="isSidebarExpanded" class="whitespace-nowrap">Start New Chat</span>
+      </button>
+
+      <!-- Navigation Items -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2 mt-2">
+        <div *ngIf="isSidebarExpanded" class="space-y-1 min-w-[280px]">
+          <!-- Recent Chats -->
+          <div *ngIf="chatHistories.length > 0" class="mb-4">
+            <h3 class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider px-4 mb-2">Recent Chats ({{chatHistories.length}})</h3>
+            <div class="space-y-1">
+              <div *ngFor="let chat of chatHistories" 
+                   (click)="loadChat(chat.id)"
+                   class="px-4 py-3 flex items-center gap-3 rounded-lg cursor-pointer group transition-all"
+                   [ngClass]="chat.id === activeChatId ? 'bg-primary/10 text-primary font-semibold' : 'text-on-surface-variant hover:bg-surface-bright hover:text-on-surface'">
+                <span class="material-symbols-outlined text-[18px] shrink-0">chat_bubble_outline</span>
+                <span class="truncate flex-1 text-label-sm leading-tight">{{ chat.title }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Static Links -->
+          <div class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright hover:text-on-surface transition-all rounded-lg cursor-pointer group">
+            <span class="material-symbols-outlined text-[20px] shrink-0">help_outline</span>
+            <span class="break-words flex-1">What Genie can answer</span>
+          </div>
+          <div (click)="isSchemesExpanded = !isSchemesExpanded" class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-surface-bright hover:text-on-surface transition-all rounded-lg cursor-pointer group">
+            <span class="material-symbols-outlined text-[20px] shrink-0">list_alt</span>
+            <span class="break-words flex-1">Supported Schemes (5)</span>
+            <span class="material-symbols-outlined text-[20px] shrink-0 transition-transform duration-300" [class.rotate-180]="isSchemesExpanded">expand_more</span>
+          </div>
+          <!-- Dropdown items -->
+          <div *ngIf="isSchemesExpanded" class="pl-12 pr-4 space-y-2 pb-2 text-on-surface-variant text-label-sm">
+            <div class="hover:text-primary cursor-pointer transition-colors leading-tight py-1">Nippon India growth mid Cap</div>
+            <div class="hover:text-primary cursor-pointer transition-colors leading-tight py-1">Nippon India Large Cap</div>
+            <div class="hover:text-primary cursor-pointer transition-colors leading-tight py-1">Nippon India Flexi Cap</div>
+            <div class="hover:text-primary cursor-pointer transition-colors leading-tight py-1">Nippon India Silver etf</div>
+            <div class="hover:text-primary cursor-pointer transition-colors leading-tight py-1">Nippon India Small Cap</div>
+          </div>
+        </div>
+        <div *ngIf="!isSidebarExpanded" class="space-y-4 pt-2">
+          <div class="text-primary font-semibold flex items-center justify-center cursor-pointer group relative" title="What Genie can answer">
+            <div class="absolute inset-0 bg-primary/10 rounded-lg -m-2"></div>
+            <span class="material-symbols-outlined text-[20px] relative z-10">help_outline</span>
+          </div>
+          <div class="text-on-surface-variant flex items-center justify-center hover:text-primary transition-all cursor-pointer group" title="Schemes in scope">
+            <span class="material-symbols-outlined text-[20px]">list_alt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings / Collapse -->
+      <div class="pt-4 border-t border-outline-variant space-y-1 shrink-0 overflow-hidden">
+        <div class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer" [ngClass]="{'justify-center px-0': !isSidebarExpanded, 'px-4': isSidebarExpanded}">
+          <span class="material-symbols-outlined text-[20px] shrink-0">settings</span>
+          <span class="text-label-md font-label-md whitespace-nowrap" *ngIf="isSidebarExpanded">Settings</span>
+        </div>
+        <div class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer" [ngClass]="{'justify-center px-0': !isSidebarExpanded, 'px-4': isSidebarExpanded}">
+          <span class="material-symbols-outlined text-[20px] shrink-0">help</span>
+          <span class="text-label-md font-label-md whitespace-nowrap" *ngIf="isSidebarExpanded">Help</span>
+        </div>
+        <div (click)="toggleSidebar()" class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors cursor-pointer mt-4 border-t border-outline-variant pt-4" [ngClass]="{'justify-center px-0': !isSidebarExpanded, 'px-4': isSidebarExpanded}">
+          <span class="material-symbols-outlined text-[20px] shrink-0 transition-transform duration-300" [class.rotate-180]="!isSidebarExpanded">menu_open</span>
+          <span class="text-label-md font-label-md whitespace-nowrap" *ngIf="isSidebarExpanded">Collapse</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Canvas -->
+    <main [ngClass]="{'md:ml-20': isSidebarCollapsed, 'md:ml-[360px]': !isSidebarCollapsed}" class="flex-1 flex flex-col bg-background transition-all duration-300 relative w-full h-full">
+      
+      <!-- CONDITIONAL HERO: Only when sidebar collapsed & no conversation -->
+      <div *ngIf="isSidebarCollapsed && !hasStartedConversation" class="px-6 md:px-12 pt-8 pb-4 shrink-0 bg-background z-20 flex flex-col items-center justify-center border-b border-outline-variant/30">
+        <div class="max-w-4xl mx-auto w-full flex flex-col items-center text-center">
+          <div class="h-12 w-12 bg-primary/20 text-primary rounded-2xl flex items-center justify-center shrink-0 shadow-sm mb-4 relative overflow-hidden">
+            <div class="absolute inset-0 shimmer-effect pointer-events-none opacity-30"></div>
+            <span class="material-symbols-outlined text-[24px] relative z-10" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          </div>
+          <h1 class="font-headline-lg text-[32px] text-on-surface m-0 font-bold tracking-tight">Groww Genie</h1>
+          <p class="text-on-surface-variant font-body-lg text-[18px] m-0 mt-2">Your mutual fund fact assistant</p>
+          
+          <div class="flex items-center justify-center flex-wrap gap-4 mb-6 mt-3">
+            <span class="flex items-center gap-1.5 text-on-surface text-label-md font-semibold bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/50">
+              <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+              Facts only • No advice
+            </span>
+          </div>
+          
+          <div class="w-full max-w-2xl">
+            <span class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider mb-3 block text-center">Try Asking</span>
+            <div class="flex flex-wrap justify-center gap-3">
+              <button (click)="handleQuery('What is the expense ratio of Nippon India Large Cap Fund?')" class="bg-surface-container-high border border-outline-variant/50 text-on-surface hover:border-primary hover:text-primary transition-colors px-4 py-2 rounded-xl text-body-sm font-medium shadow-sm hover:shadow-md">
+                What is the expense ratio of Nippon India Large Cap Fund?
+              </button>
+              <button (click)="handleQuery('Who is the fund manager for Nippon India Silver ETF?')" class="bg-surface-container-high border border-outline-variant/50 text-on-surface hover:border-primary hover:text-primary transition-colors px-4 py-2 rounded-xl text-body-sm font-medium shadow-sm hover:shadow-md">
+                Who is the fund manager for Nippon India Silver ETF?
+              </button>
+              <button (click)="handleQuery('How do I download my capital gains statement?')" class="bg-surface-container-high border border-outline-variant/50 text-on-surface hover:border-primary hover:text-primary transition-colors px-4 py-2 rounded-xl text-body-sm font-medium shadow-sm hover:shadow-md">
+                How do I download my capital gains statement?
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPACT HEADER: Show when active conversation OR sidebar expanded -->
+      <div *ngIf="hasStartedConversation || !isSidebarCollapsed" class="px-6 md:px-12 pt-4 pb-4 shrink-0 bg-background z-20 border-b border-outline-variant/30 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 bg-primary/20 text-primary rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          </div>
+          <h1 class="font-headline-sm text-label-lg text-on-surface m-0 font-bold">Groww Genie</h1>
+          <span class="bg-primary/10 border border-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+            Facts only • No advice
+          </span>
+        </div>
+      </div>
+
+      <!-- Chat Display Area -->
+      <div #chatContainer class="flex-1 overflow-y-auto p-6 md:px-12 md:pb-6 md:pt-2 custom-scrollbar flex flex-col gap-4">
+        <!-- Messages List -->
+        <ng-container *ngIf="messages.length > 0">
+
+          <div class="max-w-5xl mx-auto w-full flex flex-col gap-4">
+            <ng-container *ngFor="let msg of messages">
+              <!-- User Message -->
+              <div *ngIf="msg.role === 'user'" class="flex justify-end animate-message">
+                <div class="max-w-[50%] bg-primary text-on-primary px-4 py-3 rounded-xl rounded-tr-none message-shadow text-[15px] font-normal leading-snug">
+                  {{ msg.text }}
+                </div>
+              </div>
+
+              <!-- Assistant Message -->
+              <div *ngIf="msg.role === 'assistant'" class="flex gap-4 animate-message">
+                <div class="h-8 w-8 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                </div>
+                <div class="max-w-[70%] flex flex-col gap-2">
+                  <div class="bg-surface-container-high text-on-surface px-4 py-3 rounded-xl rounded-tl-none border border-outline-variant/50 message-shadow w-full">
+                    <p class="text-[15px] leading-[1.5] font-normal whitespace-pre-wrap m-0" [innerHTML]="formatMessage(msg.text)"></p>
+                    <div *ngIf="msg.citation && !msg.is_refusal" class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-2 mt-2 border-t border-outline-variant/30">
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-on-surface-variant text-[13px] font-normal">Source: <a [href]="msg.citation" target="_blank" class="text-primary hover:underline font-medium">{{ msg.citation_title || 'Factsheet' }}</a></span>
+                        <span *ngIf="msg.last_updated" class="text-on-surface-variant/70 text-[11px]">Updated: {{ msg.last_updated }}</span>
+                      </div>
+                      <a href="https://groww.in/mutual-funds/amc/nippon-india-mutual-funds" target="_blank" class="bg-transparent border border-outline-variant text-on-surface hover:bg-surface-bright px-2.5 py-1 rounded-lg text-[13px] font-medium flex justify-center items-center gap-1 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[14px]">description</span>
+                        <span>View Scheme</span>
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <!-- Contextual Follow-ups -->
+                  <div class="flex flex-wrap gap-1.5 mt-1 w-full" *ngIf="msg.role === 'assistant' && !msg.is_refusal">
+                    <button (click)="handleQuery('Tell me about the exit load')" class="bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright px-2.5 py-0.5 rounded-full text-[10px] font-medium transition-colors">Tell me about exit load</button>
+                    <button (click)="handleQuery('What is the SIP minimum?')" class="bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright px-2.5 py-0.5 rounded-full text-[10px] font-medium transition-colors">What is the SIP minimum?</button>
+                  </div>
+
+                  <div class="flex items-center gap-4 ml-2" *ngIf="!msg.is_refusal">
+                    <button class="text-on-surface-variant hover:text-primary transition-colors">
+                      <span class="material-symbols-outlined text-[18px]">thumb_up</span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-error transition-colors">
+                      <span class="material-symbols-outlined text-[18px]">thumb_down</span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-on-surface transition-colors">
+                      <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Disclaimer Message -->
+              <div *ngIf="msg.role === 'disclaimer'" class="flex gap-4 animate-message mt-2">
+                <div class="max-w-[85%] ml-12">
+                  <div class="bg-yellow-900/20 text-yellow-200/90 px-4 py-3 rounded-xl rounded-tl-none border border-yellow-700/30 message-shadow">
+                    <p class="font-body-sm text-body-sm italic m-0">
+                      {{ msg.text }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Loading Indicator -->
+            <div *ngIf="isLoading" class="flex gap-4 animate-message">
+              <div class="h-8 w-8 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+              </div>
+              <div class="bg-surface-container-high text-on-surface px-4 py-3 rounded-xl rounded-tl-none border border-outline-variant/50 message-shadow flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-primary/60 animate-bounce"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style="animation-delay: 0.4s"></div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="px-6 pb-6 pt-4 bg-background shrink-0 border-t border-outline-variant z-10">
+        <div class="max-w-5xl mx-auto relative group">
+          
+          <!-- Suggestion Chips removed from input area -->
+          <!-- Invest Now Button removed from floating right -->
+
+          <!-- Input Field -->
+          <div class="relative flex items-end gap-2 bg-surface-container-highest rounded-xl p-1.5 border border-outline-variant input-focus-ring transition-all group/container" [class.input-focus-ring]="isInputFocused">
+            <textarea 
+              #chatInput
+              [(ngModel)]="userInput"
+              (keyup.enter)="handleQuery()"
+              (input)="autoResize()"
+              (focus)="onInputFocus()"
+              (blur)="onInputBlur()"
+              [disabled]="isLoading"
+              class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface text-[15px] py-2.5 px-4 resize-none max-h-32 placeholder-on-surface-variant/80 placeholder:text-[14px] focus:outline-none" 
+              placeholder="Ask about expense ratios, SIP limits, exit loads, lock-in periods..." 
+              rows="1"></textarea>
+            
+            <div class="flex items-center gap-2 pr-2 pb-1.5">
+              <span class="material-symbols-outlined text-primary/40 text-[20px] select-none transition-colors duration-300" [ngClass]="{'text-primary/70 animate-twinkle': isInputFocused}">auto_awesome</span>
+              <button 
+                (click)="handleQuery()"
+                [disabled]="isLoading || !userInput.trim()"
+                class="h-10 w-10 bg-primary text-on-primary rounded-xl flex items-center justify-center shrink-0 hover:bg-primary-fixed hover:scale-110 active:scale-95 transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                [ngClass]="{'animate-send-ready': userInput.trim().length > 0 && !isLoading}">
+                <span class="material-symbols-outlined">send</span>
+              </button>
+            </div>
+          </div>
+          <p class="text-center text-[11px] leading-tight text-on-surface-variant mt-3 max-w-4xl mx-auto opacity-70">
+            Groww Genie provides publicly available factual information about mutual fund schemes sourced from official AMC, AMFI, and SEBI documents. For personalised advice, please consult a SEBI-registered investment advisor. Do not share personal details such as PAN, Aadhaar, bank account numbers, or OTPs in this chat.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
