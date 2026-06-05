@@ -22,8 +22,8 @@ Based on the requirements, here is the recommended hosting stack:
 | Component | Recommended Platform | Why? |
 |-----------|----------------------|------|
 | **Frontend** | **Vercel** or **Netlify** | Free, zero-config CI/CD for Angular, global CDN. |
-| **Backend API** | **Render (Web Service)** | Supports Docker/Python, offers persistent disks for ChromaDB. |
-| **Scheduler** | **Render (Background Worker)** | Can share the persistent disk with the API to update the database. |
+| **Backend API** | **Railway** | Supports Docker/Python, offers persistent volumes for ChromaDB. |
+| **Scheduler** | **Railway (Integrated)** | Runs inside the API container to share the persistent volume. |
 
 ---
 
@@ -34,7 +34,7 @@ Based on the requirements, here is the recommended hosting stack:
 The Angular frontend is stateless and can be hosted statically. It has been configured with an `environment.ts` system to handle API routing automatically.
 
 1. **Environment Setup**:
-   - The production API URL is already configured in `src/environments/environment.prod.ts` (currently pointing to a placeholder Render URL `https://groww-genie-backend.onrender.com/api/chat`). Ensure this URL exactly matches your live Render deployment URL.
+   - The production API URL is already configured in `src/environments/environment.prod.ts` (currently pointing to a placeholder URL `https://your-railway-app.up.railway.app/api/chat`). Ensure this URL exactly matches your live Railway deployment URL.
 2. **Vercel Configuration**:
    - Connect the GitHub repository to Vercel.
    - Set the Framework Preset to **Angular**.
@@ -43,7 +43,7 @@ The Angular frontend is stateless and can be hosted statically. It has been conf
 3. **Deployment**:
    - Click "Deploy". Vercel will automatically provide a secure HTTPS URL.
 
-### Phase 2: Backend API Deployment (Render)
+### Phase 2: Backend API Deployment (Railway)
 
 Since ChromaDB writes data to the `db/` folder locally, we need a VPS or a PaaS with a persistent disk.
 
@@ -57,22 +57,21 @@ Since ChromaDB writes data to the `db/` folder locally, we need a VPS or a PaaS 
      COPY . .
      CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
      ```
-2. **Render Web Service Configuration**:
-   - Connect the repo to Render.
-   - Create a new **Web Service**.
-   - Environment: `Docker` (or `Python 3`).
-   - Add a **Persistent Disk** mounted at `/app/db` to ensure vector embeddings survive re-deployments.
+2. **Railway Configuration**:
+   - Connect the repo to Railway (`railway.app`).
+   - Create a new project and deploy from your GitHub repo. Railway will automatically detect the `Dockerfile`.
+   - Add a **Volume** to the service via the Railway dashboard or CLI (`railway volume add --mount-path /app/db`) to ensure vector embeddings survive re-deployments.
 3. **Environment Variables**:
    - Set `GROQ_API_KEY=gsk_...`
    - Set `CORS_ORIGINS=https://your-vercel-frontend.vercel.app`
 4. **Deploy**:
-   - Start the service. Note the provided `.onrender.com` URL and update the frontend if needed.
+   - Generate a domain in Railway (under Service Settings -> Networking). Note the provided URL and update the frontend if needed.
 
 ### Phase 3: Scheduler Deployment (Vector DB Updates)
 
 The scheduler ensures the vector DB is updated daily with the latest mutual fund data. 
 
-Because Render does not support mounting a persistent disk on a Cron Job (or sharing one disk across multiple services), the scheduler must run within the same container as the FastAPI web service to update the local ChromaDB database.
+Because cloud platforms like Railway enforce one persistent volume per service (and do not support attaching volumes to separate ephemeral Cron jobs), the scheduler must run within the same container as the FastAPI web service to update the local ChromaDB database.
 
 - **Integrated APScheduler**: The `api.py` has been updated to automatically launch a `BackgroundScheduler` on startup. 
 - It triggers the ingestion script (`scheduler.py`) daily at 10:00 AM IST. 
@@ -85,13 +84,13 @@ Because Render does not support mounting a persistent disk on a Cron Job (or sha
 - [x] **CORS Configuration**: Ensure `api.py` CORS middleware explicitly allows the production frontend URL.
 - [ ] **Initial DB Ingestion**: Run `python ingest.py` once on the production server to seed the `db/` folder before accepting API traffic.
 - [x] **Security Review**: Verify that `.env` files are in `.gitignore` and API keys are strictly loaded via provider secrets management.
-- [x] **Health Check**: Implement a simple `GET /` or `GET /health` endpoint in `api.py` for Render to verify service uptime.
+- [x] **Health Check**: Implement a simple `GET /` or `GET /health` endpoint in `api.py` for Railway to verify service uptime.
 - [ ] **Compliance Validation**: Run `verify_rag.py` in the CI/CD pipeline before deploying any backend code changes.
 
 ---
 
 ## 5. Monitoring & Maintenance
 
-- **Logs**: Monitor backend logs via Render dashboard for failed LLM generations or ingestion errors.
+- **Logs**: Monitor backend logs via Railway dashboard for failed LLM generations or ingestion errors.
 - **Data Freshness**: The frontend will automatically display the `Last updated from sources: <date>` footer, making it easy to verify that the daily scheduler is working.
 - **Groq Rate Limits**: Monitor Groq API usage. If rate limits are hit, implement an exponential backoff in `query_engine.py` or upgrade the tier.

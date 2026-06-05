@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  // Ensure this matches the live Render API URL exactly
-  apiUrl: 'https://groww-genie-backend.onrender.com/api/chat'
+  // Ensure this matches the live Railway API URL exactly
+  apiUrl: 'https://your-railway-app.up.railway.app/api/chat'
 };
