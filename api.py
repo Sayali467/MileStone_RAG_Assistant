@@ -3,6 +3,9 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from query_engine import query_rag_engine
+from apscheduler.schedulers.background import BackgroundScheduler
+from scheduler import run_ingestion_job
+import logging
 
 app = FastAPI(title="Groww Genie API")
 
@@ -47,6 +50,20 @@ def chat(request: QueryRequest):
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "Groww Genie API"}
+
+@app.on_event("startup")
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        run_ingestion_job, 
+        'cron', 
+        hour=10, 
+        minute=0, 
+        timezone='Asia/Kolkata',
+        id='daily_ingestion'
+    )
+    scheduler.start()
+    logging.info("BackgroundScheduler started for daily ingestion.")
 
 if __name__ == "__main__":
     import uvicorn

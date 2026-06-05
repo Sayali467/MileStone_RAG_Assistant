@@ -70,15 +70,13 @@ Since ChromaDB writes data to the `db/` folder locally, we need a VPS or a PaaS 
 
 ### Phase 3: Scheduler Deployment (Vector DB Updates)
 
-The scheduler ensures the vector DB is updated daily with the latest mutual fund data.
+The scheduler ensures the vector DB is updated daily with the latest mutual fund data. 
 
-1. **Option A: Render Cron Job (Simplest)**
-   - Create a Render Cron Job mapped to the same codebase.
-   - Command: `python ingest.py`
-   - Schedule: `0 10 * * *` (10:00 AM daily).
-   - *Requirement*: Needs to mount the exact same Persistent Disk used by the Web Service.
-2. **Option B: Integrated APScheduler**
-   - Run the existing `scheduler.py` alongside the FastAPI app (using threading or Render Background Worker).
+Because Render does not support mounting a persistent disk on a Cron Job (or sharing one disk across multiple services), the scheduler must run within the same container as the FastAPI web service to update the local ChromaDB database.
+
+- **Integrated APScheduler**: The `api.py` has been updated to automatically launch a `BackgroundScheduler` on startup. 
+- It triggers the ingestion script (`scheduler.py`) daily at 10:00 AM IST. 
+- Since it runs within the main Web Service container, it has full read/write access to the `/app/db` persistent disk mount.
 
 ---
 
