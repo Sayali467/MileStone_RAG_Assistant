@@ -84,10 +84,10 @@ The scheduler ensures the vector DB is updated daily with the latest mutual fund
 
 ## 4. Pre-Deployment Checklist
 
-- [ ] **CORS Configuration**: Ensure `api.py` CORS middleware explicitly allows the production frontend URL.
+- [x] **CORS Configuration**: Ensure `api.py` CORS middleware explicitly allows the production frontend URL.
 - [ ] **Initial DB Ingestion**: Run `python ingest.py` once on the production server to seed the `db/` folder before accepting API traffic.
-- [ ] **Security Review**: Verify that `.env` files are in `.gitignore` and API keys are strictly loaded via provider secrets management.
-- [ ] **Health Check**: Implement a simple `GET /` or `GET /health` endpoint in `api.py` for Render to verify service uptime.
+- [x] **Security Review**: Verify that `.env` files are in `.gitignore` and API keys are strictly loaded via provider secrets management.
+- [x] **Health Check**: Implement a simple `GET /` or `GET /health` endpoint in `api.py` for Render to verify service uptime.
 - [ ] **Compliance Validation**: Run `verify_rag.py` in the CI/CD pipeline before deploying any backend code changes.
 
 ---
