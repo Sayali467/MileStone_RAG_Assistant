@@ -7,5 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Run uvicorn on port 8000
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run uvicorn on the port provided by Railway, defaulting to 8000
+CMD sh -c "uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"
