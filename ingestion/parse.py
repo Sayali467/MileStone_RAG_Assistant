@@ -142,9 +142,11 @@ def extract_from_text(text, parsed_data, key):
     lump_match = re.search(r"Minimum Lumpsum Investment:\s*(.*)", text, re.IGNORECASE)
     min_inv = []
     if sip_match:
-        min_inv.append(f"Minimum SIP: {sip_match.group(1).split('\n')[0].strip()}")
+        sip_val = sip_match.group(1).split('\n')[0].strip()
+        min_inv.append(f"Minimum SIP: {sip_val}")
     if lump_match:
-        min_inv.append(f"Minimum Lumpsum: {lump_match.group(1).split('\n')[0].strip()}")
+        lump_val = lump_match.group(1).split('\n')[0].strip()
+        min_inv.append(f"Minimum Lumpsum: {lump_val}")
         
     if min_inv:
         parsed_data["sections"]["minimum_investment"] = ". ".join(min_inv)
@@ -174,9 +176,11 @@ def extract_from_text(text, parsed_data, key):
     pb_match = re.search(r"(?:- )?Portfolio PB Ratio:\s*(.*)", text, re.IGNORECASE)
     pe_pb = []
     if pe_match:
-        pe_pb.append(f"PE Ratio: {pe_match.group(1).split('\n')[0].strip()}")
+        pe_val = pe_match.group(1).split('\n')[0].strip()
+        pe_pb.append(f"PE Ratio: {pe_val}")
     if pb_match:
-        pe_pb.append(f"PB Ratio: {pb_match.group(1).split('\n')[0].strip()}")
+        pb_val = pb_match.group(1).split('\n')[0].strip()
+        pe_pb.append(f"PB Ratio: {pb_val}")
     if pe_pb:
         parsed_data["sections"]["pe_pb_ratio"] = ", ".join(pe_pb)
         
@@ -208,9 +212,11 @@ def extract_from_text(text, parsed_data, key):
     cat_match = re.search(r"Fund Category:\s*(.*)", text, re.IGNORECASE)
     overview_parts = []
     if cat_match:
-        overview_parts.append(f"Category: {cat_match.group(1).split('\n')[0].strip()}")
+        cat_val = cat_match.group(1).split('\n')[0].strip()
+        overview_parts.append(f"Category: {cat_val}")
     if risk_match:
-        overview_parts.append(f"Riskometer: {risk_match.group(1).split('\n')[0].strip()}")
+        risk_val = risk_match.group(1).split('\n')[0].strip()
+        overview_parts.append(f"Riskometer: {risk_val}")
         
     # Standard text matching for remaining items
     remaining_text = text
