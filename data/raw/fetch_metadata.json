@@ -1,38 +1,38 @@
 {
   "nippon_india_large_cap": {
     "url": "https://groww.in/mutual-funds/nippon-india-large-cap-fund-direct-growth",
-    "status": "Success",
-    "timestamp": "2026-06-05T20:45:11.477569",
+    "status": "Fallback (Error: HTTPSConnectionPool(host='groww.in', port=443): Max retries exceeded with url: /mutual-funds/nippon-india-large-cap-fund-direct-growth (Caused by NameResolutionError(\"HTTPSConnection(host='groww.in', port=443): Failed to resolve 'groww.in' ([Errno 11001] getaddrinfo failed)\")))",
+    "timestamp": "2026-06-06T10:00:10.418182",
     "file_path": "data\\raw\\nippon_india_large_cap.html"
   },
   "nippon_india_flexi_cap": {
     "url": "https://groww.in/mutual-funds/nippon-india-flexi-cap-fund-direct-growth",
-    "status": "Success",
-    "timestamp": "2026-06-05T20:45:12.572970",
+    "status": "Fallback (Error: HTTPSConnectionPool(host='groww.in', port=443): Max retries exceeded with url: /mutual-funds/nippon-india-flexi-cap-fund-direct-growth (Caused by NameResolutionError(\"HTTPSConnection(host='groww.in', port=443): Failed to resolve 'groww.in' ([Errno 11001] getaddrinfo failed)\")))",
+    "timestamp": "2026-06-06T10:00:22.464405",
     "file_path": "data\\raw\\nippon_india_flexi_cap.html"
   },
   "nippon_india_growth_mid_cap": {
     "url": "https://groww.in/mutual-funds/nippon-india-growth-mid-cap-fund-direct-growth",
-    "status": "Success",
-    "timestamp": "2026-06-05T20:45:13.926353",
+    "status": "Fallback (Error: HTTPSConnectionPool(host='groww.in', port=443): Max retries exceeded with url: /mutual-funds/nippon-india-growth-mid-cap-fund-direct-growth (Caused by NameResolutionError(\"HTTPSConnection(host='groww.in', port=443): Failed to resolve 'groww.in' ([Errno 11001] getaddrinfo failed)\")))",
+    "timestamp": "2026-06-06T10:00:22.469901",
     "file_path": "data\\raw\\nippon_india_growth_mid_cap.html"
   },
   "nippon_india_small_cap": {
     "url": "https://groww.in/mutual-funds/nippon-india-small-cap-fund-direct-growth",
-    "status": "Success",
-    "timestamp": "2026-06-05T20:45:15.024355",
+    "status": "Fallback (Error: HTTPSConnectionPool(host='groww.in', port=443): Max retries exceeded with url: /mutual-funds/nippon-india-small-cap-fund-direct-growth (Caused by NameResolutionError(\"HTTPSConnection(host='groww.in', port=443): Failed to resolve 'groww.in' ([Errno 11001] getaddrinfo failed)\")))",
+    "timestamp": "2026-06-06T10:00:22.473385",
     "file_path": "data\\raw\\nippon_india_small_cap.html"
   },
   "nippon_india_silver_etf_fof": {
     "url": "https://groww.in/mutual-funds/nippon-india-silver-etf-fof-direct-growth",
-    "status": "Success",
-    "timestamp": "2026-06-05T20:45:15.855967",
+    "status": "Fallback (Error: HTTPSConnectionPool(host='groww.in', port=443): Max retries exceeded with url: /mutual-funds/nippon-india-silver-etf-fof-direct-growth (Caused by NameResolutionError(\"HTTPSConnection(host='groww.in', port=443): Failed to resolve 'groww.in' ([Errno 11001] getaddrinfo failed)\")))",
+    "timestamp": "2026-06-06T10:00:22.478700",
     "file_path": "data\\raw\\nippon_india_silver_etf_fof.html"
   },
   "nippon_india_statements": {
     "url": "https://nipponindiaim.com/",
     "status": "Fallback (Error: HTTPSConnectionPool(host='nipponindiaim.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"HTTPSConnection(host='nipponindiaim.com', port=443): Failed to resolve 'nipponindiaim.com' ([Errno 11001] getaddrinfo failed)\")))",
-    "timestamp": "2026-06-05T20:45:16.707315",
+    "timestamp": "2026-06-06T10:00:22.479857",
     "file_path": "data\\raw\\nippon_india_statements.html"
   }
 }
